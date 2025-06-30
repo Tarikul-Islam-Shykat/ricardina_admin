@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prettyrini/core/global_widegts/custom_text.dart';
+import 'package:prettyrini/feature/auth/screen/reset_password.dart';
 import '../../../core/const/app_colors.dart';
 import '../../../core/const/image_path.dart';
 import '../controller/forget_pasword_controller.dart';
@@ -68,7 +69,9 @@ class ForgetPasswordScreen extends StatelessWidget {
               ),
               Spacer(),
               CustomButton(
-                onTap: () {},
+                onTap: () {
+                  Get.to(ResetPasswordScreen());
+                },
                 title: Text(
                   'Send Email',
                   style: GoogleFonts.manrope(

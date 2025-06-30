@@ -72,7 +72,7 @@ Widget normalText({
         overflow: overflow,
         style: GoogleFonts.poppins(
           color: color,
-          fontSize: 16.sp,
+          fontSize: 14.sp,
           fontWeight: fontWeight,
         ),
       ),

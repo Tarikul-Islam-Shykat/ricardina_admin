@@ -90,9 +90,9 @@ class OrderSummaryUi extends StatelessWidget {
 
             // Mark as Complete Button
 
-            _buildMarkOnTheWay(controller),
+            // _buildMarkOnTheWay(controller),
 
-            _buildCompleteButton(controller),
+            // _buildCompleteButton(controller),
           ],
         );
       }),

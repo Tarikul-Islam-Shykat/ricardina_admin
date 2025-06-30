@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:prettyrini/feature/dashboard/controller/dashboard_controller.dart';
+import 'package:prettyrini/feature/notification/ui/notification_page_ui.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class DashboardScreen extends StatelessWidget {
       init: DashboardController(),
       builder: (controller) => Scaffold(
         backgroundColor: const Color(0xFFF8F9FA),
-        body: SafeArea(
+        body: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Column(
@@ -22,6 +23,7 @@ class DashboardScreen extends StatelessWidget {
                 _buildHeader(),
                 SizedBox(height: 10.h),
                 _buildStatsSection(controller),
+                SizedBox(height: 200.h),
               ],
             ),
           ),
@@ -68,25 +70,30 @@ class DashboardScreen extends StatelessWidget {
         ),
 
         // Notification Icon
-        Container(
-          width: 40.w,
-          height: 40.h,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 0,
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Icon(
-            Icons.notifications_outlined,
-            color: Colors.grey[700],
-            size: 20.sp,
+        GestureDetector(
+          onTap: () {
+            Get.to(NotificationScreen());
+          },
+          child: Container(
+            width: 40.w,
+            height: 40.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 0,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.notifications_outlined,
+              color: Colors.grey[700],
+              size: 20.sp,
+            ),
           ),
         ),
       ],

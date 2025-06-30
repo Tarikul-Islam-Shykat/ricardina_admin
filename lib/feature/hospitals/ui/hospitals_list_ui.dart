@@ -97,7 +97,7 @@ class HospitalsListUi extends StatelessWidget {
                     Row(
                       children: [
                         normalText(
-                          text: "${booking.name} ",
+                          text: "${booking.name}",
                           fontWeight: FontWeight.w600,
                         ),
                         Container(

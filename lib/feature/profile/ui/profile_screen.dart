@@ -3,6 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prettyrini/core/const/image_path.dart';
+import 'package:prettyrini/feature/appointment_history/ui/appointment_history_page.dart';
+import 'package:prettyrini/feature/booking_summary/ui/booking_summary_screen.dart';
+import 'package:prettyrini/feature/doctors_list/ui/doctors_list_ui.dart';
+import 'package:prettyrini/feature/hospital_bookins/ui/hospital_booking_list_ui.dart';
+import 'package:prettyrini/feature/hospitals/ui/hospitals_list_ui.dart';
+import 'package:prettyrini/feature/order_summary/ui/order_summary_ui.dart';
+import 'package:prettyrini/feature/profile/ui/change_passoword.dart';
+import 'package:prettyrini/feature/profile/ui/edit_profile_screen.dart';
 import 'package:prettyrini/feature/profile/widget/profile_image_text.dart';
 import 'package:prettyrini/feature/profile/widget/profile_list_tile.dart';
 import 'package:prettyrini/route/route.dart';
@@ -33,75 +41,80 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(
               height: 20.h,
             ),
-            Container(
-              width: Get.width,
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.r),
-                color: Color(0xFFFFFFFF),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //profile pic
-                  Container(
-                    height: 55.h,
-                    width: 64.w,
-                    padding: EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100.r),
-                      color: Colors.purple.shade50.withValues(alpha: .5),
-                    ),
-                    child: ClipRRect(
+            GestureDetector(
+              onTap: () {
+                Get.to(EditProfile());
+              },
+              child: Container(
+                width: Get.width,
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.r),
+                  color: Color(0xFFFFFFFF),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    //profile pic
+                    Container(
+                      height: 55.h,
+                      width: 64.w,
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(100.r),
-                        child: Image.asset(
-                          ImagePath.profile,
-                        )),
-                  ),
-                  SizedBox(
-                    width: 10.w,
-                  ),
+                        color: Colors.purple.shade50.withValues(alpha: .5),
+                      ),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100.r),
+                          child: Image.asset(
+                            ImagePath.profile,
+                          )),
+                    ),
+                    SizedBox(
+                      width: 10.w,
+                    ),
 
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //name
-                      SizedBox(
-                        width: 240.w,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Darrell Steward",
-                              style: GoogleFonts.poppins(
-                                  fontSize: 20.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.blackColor),
-                            ),
-                            // InkWell(
-                            //     onTap: () =>
-                            //         Get.toNamed(AppRoute.editProfileScreen),
-                            //     child: Image.asset(ImagePath.editIcon)),
-                          ],
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //name
+                        SizedBox(
+                          width: 240.w,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Darrell Steward",
+                                style: GoogleFonts.poppins(
+                                    fontSize: 20.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.blackColor),
+                              ),
+                              // InkWell(
+                              //     onTap: () =>
+                              //         Get.toNamed(AppRoute.editProfileScreen),
+                              //     child: Image.asset(ImagePath.editIcon)),
+                            ],
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 4.h,
-                      ),
-                      profileEmailText(
-                        Icons.email,
-                        'darrellsteward@example.com',
-                      ),
-                      profileEmailText(
-                        Icons.phone,
-                        '+1 761 234 5678',
-                      ),
-                    ],
-                  )
-                ],
+                        SizedBox(
+                          height: 4.h,
+                        ),
+                        profileEmailText(
+                          Icons.email,
+                          'darrellsteward@example.com',
+                        ),
+                        profileEmailText(
+                          Icons.phone,
+                          '+1 761 234 5678',
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
             SizedBox(
@@ -120,18 +133,54 @@ class ProfileScreen extends StatelessWidget {
                   profileListTile(
                     Icons.local_hospital,
                     'Hospital',
-                    () {},
-                  ),
-                  Divider(color: Colors.grey.shade300),
-                  profileListTile(
-                    Icons.local_pharmacy,
-                    'Pharmacy',
-                    () {},
+                    () {
+                      Get.to(HospitalsListUi());
+                    },
                   ),
                   Divider(color: Colors.grey.shade300),
                   profileListTile(
                     Icons.people,
                     'Doctors',
+                    () {
+                      Get.to(DoctorsListUi());
+                    },
+                  ),
+                  Divider(color: Colors.grey.shade300),
+                  profileListTile(
+                    Icons.medical_information,
+                    'Hospital Bookings',
+                    () {
+                      Get.to(HospitalBookingListUi());
+                    },
+                  ),
+                  Divider(color: Colors.grey.shade300),
+                  profileListTile(
+                    Icons.book,
+                    'Booking Summary',
+                    () {
+                      Get.to(BookingSummaryScreen());
+                    },
+                  ),
+                  Divider(color: Colors.grey.shade300),
+                  profileListTile(
+                    Icons.book,
+                    'Appointment History',
+                    () {
+                      Get.to(AppointmentHistoryPage());
+                    },
+                  ),
+                  Divider(color: Colors.grey.shade300),
+                  profileListTile(
+                    Icons.book,
+                    'Order Summary',
+                    () {
+                      Get.to(OrderSummaryUi());
+                    },
+                  ),
+                  Divider(color: Colors.grey.shade300),
+                  profileListTile(
+                    Icons.local_pharmacy,
+                    'Pharmacy',
                     () {},
                   ),
                   Divider(color: Colors.grey.shade300),
@@ -167,8 +216,10 @@ class ProfileScreen extends StatelessWidget {
                     () {},
                   ),
                   Divider(color: Colors.grey.shade300),
-                  profileListTile(
-                      Icons.password_outlined, 'Change Password', () {}),
+                  profileListTile(Icons.password_outlined, 'Change Password',
+                      () {
+                    Get.to(ChangePassoword());
+                  }),
                   Divider(color: Colors.grey.shade300),
                   profileListTile(
                     Icons.terminal,
@@ -192,6 +243,9 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(
+              height: 100.h,
+            )
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prettyrini/core/global_widegts/custom_text.dart';
+import 'package:prettyrini/feature/admin_dashboard/ui/admin_dashboard_ui.dart';
 import 'package:prettyrini/feature/auth/widget/custom_booton_widget.dart';
 import 'package:prettyrini/feature/auth/widget/text_field_widget.dart';
 import '../../../core/const/app_colors.dart';
@@ -105,7 +106,9 @@ class LoginScreen extends StatelessWidget {
                 height: 30,
               ),
               CustomButton(
-                onTap: () {},
+                onTap: () {
+                  Get.to(AdminDashboard());
+                },
                 title: Text(
                   "Log In",
                   style: GoogleFonts.poppins(
