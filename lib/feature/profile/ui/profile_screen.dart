@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -16,9 +17,12 @@ import 'package:prettyrini/feature/profile/widget/profile_list_tile.dart';
 import 'package:prettyrini/route/route.dart';
 
 import '../../../core/const/app_colors.dart';
+import '../controller/edit_profile_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final EditProfileController controller = Get.put(EditProfileController());
+
+  ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,78 +49,106 @@ class ProfileScreen extends StatelessWidget {
               onTap: () {
                 Get.to(EditProfile());
               },
-              child: Container(
-                width: Get.width,
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.r),
-                  color: Color(0xFFFFFFFF),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    //profile pic
-                    Container(
-                      height: 55.h,
-                      width: 64.w,
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100.r),
-                        color: Colors.purple.shade50.withValues(alpha: .5),
-                      ),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(100.r),
-                          child: Image.asset(
-                            ImagePath.profile,
-                          )),
+              child: Obx(() => Container(
+                    width: Get.width,
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.r),
+                      color: Color(0xFFFFFFFF),
                     ),
-                    SizedBox(
-                      width: 10.w,
-                    ),
-
-                    Column(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        //name
-                        SizedBox(
-                          width: 240.w,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Darrell Steward",
-                                style: GoogleFonts.poppins(
-                                    fontSize: 20.sp,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.blackColor),
-                              ),
-                              // InkWell(
-                              //     onTap: () =>
-                              //         Get.toNamed(AppRoute.editProfileScreen),
-                              //     child: Image.asset(ImagePath.editIcon)),
-                            ],
+                        //profile pic
+                        Container(
+                          height: 55.h,
+                          width: 64.w,
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100.r),
+                            color: Colors.purple.shade50.withValues(alpha: .5),
                           ),
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.circular(100.r),
+                              child: controller.profileImageUrl.value.isNotEmpty
+                                  ? CachedNetworkImage(
+                                      imageUrl:
+                                          controller.profileImageUrl.value,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => Container(
+                                        color: Colors.grey.shade200,
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 30.sp,
+                                          color: Colors.grey.shade400,
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
+                                        ImagePath.profile,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      ImagePath.profile,
+                                      fit: BoxFit.cover,
+                                    )),
                         ),
                         SizedBox(
-                          height: 4.h,
+                          width: 10.w,
                         ),
-                        profileEmailText(
-                          Icons.email,
-                          'darrellsteward@example.com',
-                        ),
-                        profileEmailText(
-                          Icons.phone,
-                          '+1 761 234 5678',
-                        ),
+
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            //name
+                            SizedBox(
+                              width: 240.w,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    controller.nameController.text.isNotEmpty
+                                        ? controller.nameController.text
+                                        : "Darrell Steward",
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 20.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.blackColor),
+                                  ),
+                                  // InkWell(
+                                  //     onTap: () =>
+                                  //         Get.toNamed(AppRoute.editProfileScreen),
+                                  //     child: Image.asset(ImagePath.editIcon)),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 4.h,
+                            ),
+                            profileEmailText(
+                              Icons.email,
+                              controller.emailController.text.isNotEmpty
+                                  ? controller.emailController.text
+                                  : 'darrellsteward@example.com',
+                            ),
+                            profileEmailText(
+                              Icons.phone,
+                              controller.phoneController.text.isNotEmpty
+                                  ? controller.phoneController.text
+                                  : '+1 761 234 5678',
+                            ),
+                          ],
+                        )
                       ],
-                    )
-                  ],
-                ),
-              ),
+                    ),
+                  )),
             ),
+            //
             SizedBox(
               height: 10,
             ),

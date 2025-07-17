@@ -1,8 +1,18 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:prettyrini/core/const/app_colors.dart';
+import 'package:prettyrini/core/global_widegts/app_snackbar.dart';
+import 'package:prettyrini/core/global_widegts/loading_screen.dart';
+import 'package:prettyrini/core/network_caller/endpoints.dart';
+import 'package:prettyrini/core/network_caller/network_config.dart';
+import 'package:prettyrini/feature/tips/data/category_model.dart';
 import 'package:prettyrini/feature/tips/data/health_card.dart';
 
 class TipsController extends GetxController {
+  final NetworkConfig _networkConfig = NetworkConfig();
   // Observable list of health cards
   final RxList<HealthCard> _healthCards = <HealthCard>[].obs;
   final RxList<HealthCard> _filteredCards = <HealthCard>[].obs;
@@ -19,6 +29,148 @@ class TipsController extends GetxController {
   void onInit() {
     super.onInit();
     loadHealthCards();
+    getCategories();
+  }
+
+  var categories = <CategoryModel>[].obs;
+  var selectedCategoryId = ''.obs; // Empty string means "All" is selected
+  final isCategoryLoading = false.obs;
+
+  void filterByCategory(String? categoryId) {
+    selectedCategoryId.value = categoryId ?? '';
+    // Add your filtering logic here
+  }
+
+  Future<bool> getCategories() async {
+    try {
+      isCategoryLoading.value = true;
+      final response = await _networkConfig.ApiRequestHandler(
+        RequestMethod.GET,
+        Urls.getCategories,
+        {},
+        is_auth: true,
+      );
+      if (response != null && response['success'] == true) {
+        List<dynamic> categoryData = response['data'] ?? [];
+        categories.value =
+            categoryData.map((item) => CategoryModel.fromJson(item)).toList();
+        // AppSnackbar.show(
+        //     message: "Categories loaded successfully", isSuccess: true);
+        return true;
+      } else {
+        AppSnackbar.show(message: response['message'], isSuccess: false);
+        return false;
+      }
+    } catch (e) {
+      AppSnackbar.show(
+          message: "Failed to load categories: $e", isSuccess: false);
+      return false;
+    } finally {
+      isCategoryLoading.value = false;
+    }
+  }
+
+  Future<bool> addNewCategory(String categoryName) async {
+    try {
+      isCategoryLoading.value = true;
+      final Map<String, dynamic> requestBody = {
+        "name": categoryName,
+      };
+      final response = await _networkConfig.ApiRequestHandler(
+        RequestMethod.POST,
+        Urls.getCategories, // Same URL but POST method
+        jsonEncode(requestBody),
+        is_auth: true,
+      );
+
+      if (response != null && response['success'] == true) {
+        AppSnackbar.show(
+            message: "Category added successfully", isSuccess: true);
+        // Refresh categories after adding
+        await getCategories();
+        return true;
+      } else {
+        AppSnackbar.show(
+            message: response['message'] ?? "Failed to add category",
+            isSuccess: false);
+        return false;
+      }
+    } catch (e) {
+      AppSnackbar.show(message: "Failed to add category: $e", isSuccess: false);
+      return false;
+    } finally {
+      isCategoryLoading.value = false;
+    }
+  }
+
+  void showAddCategoryDialog(BuildContext context) {
+    final TextEditingController nameController = TextEditingController();
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Add New Category"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              cursorColor: AppColors.primaryColor, // pointer/cursor color
+              decoration: InputDecoration(
+                labelText: "Category Name",
+                hintText: "Enter category name",
+                labelStyle: TextStyle(color: AppColors.primaryColor),
+                hintStyle:
+                    TextStyle(color: AppColors.primaryColor.withOpacity(0.6)),
+                focusedBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: AppColors.primaryColor, width: 2.0),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: AppColors.primaryColor, width: 1.0),
+                ),
+              ),
+              autofocus: true,
+              style:
+                  TextStyle(color: AppColors.primaryColor), // input text color
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(
+              "Cancel",
+              style: TextStyle(color: AppColors.primaryColor),
+            ),
+          ),
+          Obx(() => ElevatedButton(
+                onPressed: isCategoryLoading.value
+                    ? null
+                    : () async {
+                        if (nameController.text.trim().isNotEmpty) {
+                          final success =
+                              await addNewCategory(nameController.text.trim());
+                          if (success) {
+                            Get.back();
+                            Navigator.pop(context);
+                          }
+                        } else {
+                          AppSnackbar.show(
+                              message: "Please enter a category name",
+                              isSuccess: false);
+                        }
+                      },
+                child: isCategoryLoading.value
+                    ? loadingSmall()
+                    : const Text(
+                        "Add",
+                        style: TextStyle(color: AppColors.primaryColor),
+                      ),
+              )),
+        ],
+      ),
+    );
   }
 
   // Load health cards data

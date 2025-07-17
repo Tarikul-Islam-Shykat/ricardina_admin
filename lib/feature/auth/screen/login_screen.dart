@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prettyrini/core/global_widegts/custom_text.dart';
+import 'package:prettyrini/core/global_widegts/loading_screen.dart';
 import 'package:prettyrini/feature/admin_dashboard/ui/admin_dashboard_ui.dart';
 import 'package:prettyrini/feature/auth/widget/custom_booton_widget.dart';
 import 'package:prettyrini/feature/auth/widget/text_field_widget.dart';
@@ -105,20 +106,38 @@ class LoginScreen extends StatelessWidget {
               SizedBox(
                 height: 30,
               ),
+
+              Obx(
+                () => controller.isLoginLoading.value
+                    ? btnLoading()
+                    : CustomButton(
+                        onTap: () => controller.loginUser(),
+                        title: Text(
+                          "Log In",
+                          style: GoogleFonts.manrope(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white),
+                        ),
+                        color: AppColors.primaryColor,
+                      ),
+              ),
+
+              SizedBox(
+                height: 10,
+              ),
+
               CustomButton(
-                onTap: () {
-                  Get.to(AdminDashboard());
-                },
+                onTap: () => controller.setUpValues(),
                 title: Text(
-                  "Log In",
-                  style: GoogleFonts.poppins(
+                  "Fill Up Values",
+                  style: GoogleFonts.manrope(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w800,
                       color: Colors.white),
                 ),
                 color: AppColors.primaryColor,
               ),
-
               const Spacer(), // This pushes the button section to the bottom
               Column(
                 mainAxisSize: MainAxisSize.min,

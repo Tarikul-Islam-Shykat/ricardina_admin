@@ -1,11 +1,11 @@
 import 'dart:convert';
-//import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:prettyrini/core/global_widegts/app_snackbar.dart';
+import 'package:prettyrini/core/network_caller/network_config.dart';
+import 'package:prettyrini/core/services_class/local_data.dart';
+import 'package:prettyrini/feature/admin_dashboard/ui/admin_dashboard_ui.dart';
 import '../../../core/network_caller/endpoints.dart';
 
 class LoginController extends GetxController {
@@ -14,106 +14,58 @@ class LoginController extends GetxController {
   final isPasswordVisible = false.obs;
   final isLoading = false.obs;
   String? fcmToken;
+  final NetworkConfig _networkConfig = NetworkConfig();
 
   @override
   void onInit() {
     super.onInit();
-    requestNotificationPermission();
   }
 
-  // Request notification permissions
-  Future<void> requestNotificationPermission() async {
-    // FirebaseMessaging messaging = FirebaseMessaging.instance;
-    // NotificationSettings settings = await messaging.requestPermission(
-    //   alert: true,
-    //   badge: true,
-    //   sound: true,
-    // );
+  final isLoginLoading = false.obs;
 
-    // if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-    //   fcmToken = await messaging.getToken();
-    //   if (kDebugMode) {
-    //     print("FCM Token: $fcmToken");
-    //   } // Debugging purpose
-    // } else {
-    //   if (kDebugMode) {
-    //     print("User denied permission");
-    //   }
-    // }
-  }
-
-  void togglePasswordVisibility() {
-    isPasswordVisible.value = !isPasswordVisible.value;
-  }
-
-  Future<void> handleLogin() async {
+  Future<bool> loginUser() async {
     if (emailTEController.text.isEmpty || passwordTEController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please fill all fields',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
+      AppSnackbar.show(message: 'Please fill all fields', isSuccess: false);
+      return false;
     }
-
     try {
-      isLoading.value = true;
-      final response = await http.post(
-        Uri.parse(Urls.login),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': emailTEController.text,
-          'password': passwordTEController.text,
-          'fcmToken': fcmToken ?? "",
-        }),
-      );
+      isLoginLoading.value = true;
+      String email = emailTEController.text;
+      String password = passwordTEController.text;
+      final Map<String, dynamic> requestBody = {
+        "email": email,
+        "password": password,
+        "role": "SUPER_ADMIN"
+      };
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final token = data['data']['token'];
-        if (kDebugMode) {
-          print("token1$token");
-        }
-        SharedPreferences pref = await SharedPreferences.getInstance();
-        pref.setString("token", token);
-        pref.setBool("isLogin", true);
-        //Get.offAll(() => NavBarView());
-        Get.snackbar(
-          'Success',
-          'Login successful',
-          snackPosition: SnackPosition.TOP,
-        );
+      final response = await _networkConfig.ApiRequestHandler(
+        RequestMethod.POST,
+        Urls.login,
+        json.encode(requestBody),
+        is_auth: false,
+      );
+      if (response != null && response['success'] == true) {
+        var localService = LocalService();
+        await localService.clearUserData();
+        await localService.setToken(response["data"]["token"]);
+        await localService.setRole(response["data"]["role"]);
+        Get.to(AdminDashboard());
+        AppSnackbar.show(message: "Login Successful", isSuccess: true);
+        return true;
       } else {
-        Get.snackbar(
-          'Error',
-          'Login failed. Please try again.',
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.show(message: response['message'], isSuccess: false);
+        return false;
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Something went wrong',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.show(message: "Failed To Login $e", isSuccess: false);
+      return false;
     } finally {
-      isLoading.value = false;
+      isLoginLoading.value = false;
     }
   }
 
-  Future<void> handleGoogleSignIn() async {
-    try {
-      isLoading.value = true;
-      // Implement Google Sign In logic here
-      await Future.delayed(Duration(seconds: 2));
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Google sign in failed',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
-    }
+  void setUpValues() {
+    emailTEController.text = "super.admin@gmail.com";
+    passwordTEController.text = "12345678";
   }
 }

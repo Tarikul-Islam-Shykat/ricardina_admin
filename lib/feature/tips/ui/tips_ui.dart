@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:prettyrini/core/const/app_colors.dart';
+import 'package:prettyrini/core/global_widegts/loading_screen.dart';
 import 'package:prettyrini/feature/dashboard/ui/dashboard.dart';
 import 'package:prettyrini/feature/tips/controller/tips_controller.dart';
 import 'package:prettyrini/feature/tips/widget/tips_card_widget.dart';
@@ -26,7 +27,9 @@ class _TipsUiScreenState extends State<TipsUi> {
             const SizedBox(height: 60),
             _buildHeader(),
             const SizedBox(height: 20),
-            _buildCategoryFilter(),
+            Obx(() => controller.isCategoryLoading.value
+                ? btnLoading()
+                : _buildCategoryFilter()),
             const SizedBox(height: 20),
             _buildTipsList(),
           ],
@@ -69,34 +72,64 @@ class _TipsUiScreenState extends State<TipsUi> {
     );
   }
 
+  // Category Filter UI Widget
   Widget _buildCategoryFilter() {
     return Container(
       height: 50,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: HealthType.values.length + 1, // +1 for "All" option
+        itemCount:
+            controller.categories.length + 2, // +2 for "All" and "Add New"
         itemBuilder: (context, index) {
           if (index == 0) {
-            // "All" option
+            // "All" option - always first and selected by default
             return Obx(() => _buildCategoryChip(
                   label: "All",
-                  isSelected: controller.selectedType == null,
-                  onTap: () => controller.filterByType(null),
-                  color: const Color(0xFF34495E),
-                  icon: Icons.apps,
+                  isSelected: controller.selectedCategoryId.value.isEmpty,
+                  onTap: () => controller.filterByCategory(null),
                 ));
           }
 
-          final type = HealthType.values[index - 1];
+          if (index == controller.categories.length + 1) {
+            // "Add New Category" option - always last
+            return _buildAddCategoryChip();
+          }
+
+          final category = controller.categories[index - 1];
           return Obx(() => _buildCategoryChip(
-                label: _getTypeDisplayName(type),
-                isSelected: controller.selectedType == type,
-                onTap: () => controller.filterByType(type),
-                color: controller.getTypeColor(type),
-                icon: controller.getTypeIcon(type),
+                label: category.name,
+                isSelected: controller.selectedCategoryId.value == category.id,
+                onTap: () => controller.filterByCategory(category.id),
               ));
         },
+      ),
+    );
+  }
+
+  Widget _buildAddCategoryChip() {
+    return GestureDetector(
+      onTap: () => controller.showAddCategoryDialog(context),
+      child: Container(
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: AppColors.primaryColor,
+            width: 1,
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Text(
+          "+ Add New",
+          style: TextStyle(
+            color: AppColors.primaryColor,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
       ),
     );
   }
@@ -105,49 +138,27 @@ class _TipsUiScreenState extends State<TipsUi> {
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
-    required Color color,
-    required IconData icon,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? color : Colors.white,
+          color: isSelected ? AppColors.primaryColor : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: isSelected ? color : Colors.grey.shade300,
+            color: isSelected ? AppColors.primaryColor : Colors.grey.shade300,
             width: 1,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: color.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected ? Colors.white : color,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : color,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                fontSize: 14,
-              ),
-            ),
-          ],
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.grey.shade600,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            fontSize: 14,
+          ),
         ),
       ),
     );
